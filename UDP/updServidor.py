@@ -1,31 +1,29 @@
-# un servidor UDP simple en python
+# cliente de un servidor UPD en python
 import socket
 import sys
 
 # Crear un socket UDP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-# Enlazar el socket al puerto
-server_address = ('localhost', 10000)
+server_address = ('localhost', 3400)
 
-print(sys.stderr, 'Iniciando en %s puerto %s' % server_address)
-sock.bind(server_address)
+size = input("Introduce el tamaño del mensaje: ")
+message = open("mensajes/" + size + "MB.txt", "r").read().encode()
 
-while True:
-    # Esperar a recibir datos
-    print(sys.stderr, 'Esperando para recibir mensaje')
-    data, address = sock.recvfrom(4096)
-    
-    # Imprimir datos recibidos
-    print(sys.stderr, 'Recibido %s bytes de %s' % (len(data), address))
-    print(sys.stderr, data)
-    
-    # Comprobar si es necesario responder
-    if data:
-        # Enviar datos de vuelta al cliente
-        data = b'LAPOO-CONFIRMO'
-        sent = sock.sendto(data, address)
-        print(sys.stderr, 'Enviado %s bytes de vuelta a %s' % (sent, address))
+max_datagram_length = 1024
+datagrams = [message[i:i+max_datagram_length] for i in range(0, len(message), max_datagram_length)]
 
+try:
+        for each_datagram in datagrams:
+                # Enviar datos
+                print(sys.stderr, 'Enviando "%s"' % each_datagram)
+                sent = sock.sendto(message, server_address)
+        
+                # Recibir respuesta
+                print(sys.stderr, 'Esperando respuesta')
+                data, server = sock.recvfrom(4096)
+                print(sys.stderr, 'Recibido "%s"' % data)
 
-
+finally:
+        print(sys.stderr, 'Cerrando socket')
+        sock.close()
