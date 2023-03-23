@@ -1,33 +1,40 @@
 # cliente de un servidor UPD en python
 import socket
 import sys
-
-# Crear un socket UDP
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-# buf_size = 8192
-# sock.setsockopt(socket.SOL_SOCKET, socket.SO_SNDBUF, buf_size)
+import threading
 
 server_address = ('192.168.1.70', 3400)
 
-max_datagram_length = 512
+def recive_data(sock, i):
+    
+    # Recibir respuesta
+    print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
 
-message_length = input('Introduce el tamaño del mensaje: ')
-message = open('mensajes/' + str(message_length) + 'MB.txt').read().encode()
+    data = b'data'
+    while data:
+        data, server = sock.recvfrom(4096)
+        print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Recibido "%s"' % data)
 
-datagrams = [message[i:i + max_datagram_length] for i in range(0, len(message), max_datagram_length)]
+        if data == b'FIN':
+            break
 
-try:
-        for each_datagram in datagrams:
-                # Enviar datos
-                print(sys.stderr, 'Enviando') #  % message
-                sent = sock.sendto(message, server_address)
-        
-                # Recibir respuesta
-                print(sys.stderr, 'Esperando respuesta')
-                data, server = sock.recvfrom(4096)
-                print(sys.stderr, 'Recibido "%s"' % data)
+    print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Cerrando socket')
+    sock.close()
 
-finally:
-        print(sys.stderr, 'Cerrando socket')
-        sock.close()
+if __name__ == "__main__":
+    idThread = 0
+
+    message = input('Introduce el tamaño del mensaje: ').encode()
+
+    for i in range(0, 25):
+
+        # Crear un socket UDP
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+        # Enviar datos
+        print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Enviando') #  % message
+        sent = sock.sendto(message, server_address)
+
+        thread = threading.Thread(target=recive_data, args=(sock, i))
+        idThread += 1
+        thread.start()

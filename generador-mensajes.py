@@ -1,4 +1,11 @@
 
+# 1MB para UDP
+
+file = open("mensajes/1MB.txt", "w")
+texto = 'a' * (100 * 1024 * 10)
+file.write(texto)
+file.close()
+
 # 100MB para UDP
 
 file = open("mensajes/100MB.txt", "w")
