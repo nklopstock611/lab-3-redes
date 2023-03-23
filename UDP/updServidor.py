@@ -5,8 +5,11 @@ import sys
 # Crear un socket UDP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
+buffer_size = 8192
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size)
+
 # Enlazar el socket al puerto
-server_address = ('localhost', 3400)
+server_address = ('192.168.1.70', 3400)
 
 print(sys.stderr, 'Iniciando en %s puerto %s' % server_address)
 sock.bind(server_address)
