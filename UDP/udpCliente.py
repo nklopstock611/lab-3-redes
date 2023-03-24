@@ -6,6 +6,9 @@ import threading
 server_address = ('192.168.1.70', 3400)
 
 def recive_data(sock, i):
+
+    # Guardar en la carpeta ArchivosRecibidos
+    file = open("ArchivosRecibidos/Cliente" + str(i) + "-Prueba-" + ".txt", "w")
     
     # Recibir respuesta
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
@@ -17,9 +20,12 @@ def recive_data(sock, i):
 
         if data == b'FIN':
             break
+        
+        file.write(data.decode())
 
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Cerrando socket')
     sock.close()
+
 
 if __name__ == "__main__":
     idThread = 0
