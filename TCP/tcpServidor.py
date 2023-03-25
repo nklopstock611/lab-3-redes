@@ -18,7 +18,7 @@ nrTransferredFile = 0
 sock.bind(server_address)
 
 # Listen for incoming connections
-sock.listen(2)
+sock.listen(3)
 
 # Global variable to keep track of how many clients are ready to receive files
 clients_ready = 0
@@ -95,6 +95,7 @@ for t in connections:
 for t in connections:
     t.join()
 # Cerrar la conexión
+
 sock.close()
 
 
