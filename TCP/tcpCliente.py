@@ -4,7 +4,7 @@ import hashlib
 import threading
 
 # Función para recibir archivos
-def receive_file(sock,filename):
+def receive_file(sock, filename):
     try:
         # Enviar el nombre del archivo al servidor
         sock.sendall(filename.encode())
@@ -51,12 +51,12 @@ def receive_file(sock,filename):
 # Crear 25 threads para recibir archivos
 threads = []
 filename = input("Ingrese el nombre del archivo a recibir: ")
-for i in range(2):
+for i in range(25):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_address = ('192.168.20.57', 10000)
+    server_address = ('192.168.20.39', 10000)
     print(f"Conectando a {server_address[0]} puerto {server_address[1]}")
     sock.connect(server_address)
-    t = threading.Thread(target=receive_file, args=(sock,filename))
+    t = threading.Thread(target=receive_file, args=(sock, filename))
     threads.append(t)
 
 # Iniciar los threads

@@ -6,13 +6,13 @@ import time
 import hashlib
 
 # Define the number of clients needed before transferring files
-required_clients = 2
+required_clients = 25
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.20.57', 10000)
+server_address = ('192.168.20.39', 10000)
 print('starting up on {} port {}'.format(*server_address))
 nrTransferredFile = 0
 sock.bind(server_address)
@@ -75,9 +75,7 @@ def handle_connection(connection, client_address):
     finally:
         # Clean up the connection
         connection.close()
-
-        # Reiniciar la variable de clientes listos para la próxima transferencia
-        clients_ready = 0
+        
 
 connections = []
 
@@ -87,12 +85,16 @@ while len(connections) < required_clients:
     connection, client_address = sock.accept()
     connections.append(connection)
     print(f"Connection from {client_address} accepted")
-
+    threads = []
     if len(connections) == required_clients:
-        for conn in connections:
-            t = threading.Thread(target=handle_connection, args=(conn, client_address))
+        for connection in connections:
+            t = threading.Thread(target=handle_connection, args=(connection, client_address))
+            threads.append(t)
             t.start()
+        for t in threads:
+            t.join()
         connections.clear()
-
+        clients_ready = 0
+        
 sock.close()
 
