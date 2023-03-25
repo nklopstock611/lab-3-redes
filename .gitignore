@@ -1,3 +1,5 @@
 /mensajes/*.txt
 /UDP/Logs/*.txt
 /UDP/ArchivosRecibidos/*.txt
+/TCP/receivedFiles/*.txt
+/TCP/logs/*.txt
