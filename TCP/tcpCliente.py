@@ -1,65 +1,55 @@
 import socket
 import os
-import datetime
+import hashlib
 
-# Crear un socket TCP
+# Crear un socket TCP/IP
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-# Enlazar el socket al puerto
-server_address = ('127.0.0.1', 3400)
+# Conectar el socket al puerto del servidor
+server_address = ('localhost', 10000)
+print('Conectando a {} puerto {}'.format(*server_address))
+sock.connect(server_address)
 
-# Obtener la fecha y hora actual para el nombre del archivo de registro
-actual_date = datetime.datetime.now().strftime("%Y-%m-%d%H-%M-%S")
+# Pedir al usuario que ingrese el nombre del archivo a recibir
+filename = input("Ingrese el nombre del archivo a recibir: ")
 
-print('Iniciando en %s puerto %s' % server_address)
-sock.bind(server_address)
+try:
+    # Enviar el nombre del archivo al servidor
+    sock.sendall(filename.encode())
+    filename = filename + "MB.txt"
+    # Crear el directorio para guardar los archivos recibidos
+    if not os.path.exists('TCP/received_files'):
+        os.makedirs('TCP/received_files')
+    if sock.recv(1024).decode() == "ready":
+        sock.sendall("ready".encode())
+        
+    
+     # Recibir el hash del archivo del servidor
+    hash = sock.recv(1024).decode()
+    print(f"Hash recibido: {hash}")
 
-# Escuchar conexiones entrantes
-sock.listen(5)
+    # Recibir el archivo del servidor
+    with open('TCP/received_files/' + filename, 'wb') as f:
+        while True:
+            data = sock.recv(1024)
+            if data == b'FIN':
+                print("Archivo recibido")
+                break
+            f.write(data)
+            
 
-max_buffer_size = 4096
 
-with open('TCP/Logs/' + actual_date + '-log.txt', 'w') as log:
+    # Calcular el hash del archivo recibido
+    with open('TCP/received_files/' + filename, 'rb') as f:
+        file_hash = hashlib.sha256(f.read()).hexdigest()
+        print(f"Hash calculado: {file_hash}")
 
-    while True:
-        # Esperar a recibir una conexión
-        print('Esperando para recibir conexión')
-        connection, client_address = sock.accept()
+    # Comparar los hashes para verificar la integridad del archivo
+    if hash == file_hash:
+        print("El archivo recibido es íntegro")
+    else:
+        print("El archivo recibido está corrupto")
 
-        try:
-            print('Conexión desde', client_address)
-
-            # Recibir el nombre del archivo a enviar
-            data = connection.recv(max_buffer_size)
-
-            if data:
-                # Obtener el nombre y tamaño del archivo
-                filename = str(data.decode()) + 'MB.txt'
-                filesize = os.path.getsize('mensajes/' + filename)
-
-                # Iniciar el tiempo de transferencia
-                start_time = datetime.datetime.now()
-
-                # Abrir el archivo y enviarlo en bloques
-                with open('mensajes/' + filename, 'rb') as f:
-                    while True:
-                        block = f.read(max_buffer_size)
-                        if not block:
-                            break
-                        connection.sendall(block)
-                        print('Enviado %s bytes a %s' % (len(block), client_address))
-
-                # Envía un mensaje de finalización de transmisión
-                connection.sendall(b'FIN')
-                print('Enviando mensaje de FIN a ' + str(client_address))
-
-                # Calcular el tiempo total de transferencia
-                end_time = datetime.datetime.now()
-                total_time = (end_time - start_time).total_seconds()
-
-                # Escribir en el archivo de registro
-                log.write(f'Archivo enviado: {filename}, tamaño: {filesize} bytes, tiempo de transferencia: {total_time:.3f} segundos\n')
-
-        finally:
-            # Cerrar la conexión
-            connection.close()
+finally:
+    # Cerrar la conexión
+    sock.close()

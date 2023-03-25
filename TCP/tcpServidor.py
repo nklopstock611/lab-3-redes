@@ -6,13 +6,13 @@ import time
 import hashlib
 
 # Define the number of clients needed before transferring files
-required_clients = 2
+required_clients = 1
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('192.168.20.57', 10000)
+server_address = ('localhost', 10000)
 print('starting up on {} port {}'.format(*server_address))
 nrTransferredFile = 0
 sock.bind(server_address)
@@ -29,10 +29,12 @@ def handle_connection(connection, client_address):
         print('connection from', client_address)
         # Esperar a recibir confirmacion de inicio de transmision
         print(sys.stderr, 'Esperando para recibir mensaje')
-        data, address = sock.recvfrom(4096)
         data = connection.recv(16)
         # Obtener el nombre y tamaño del archivo
         filename = str(data.decode()) + 'MB.txt'
+
+        connection.sendall("ready".encode())
+
         filesize = os.path.getsize('mensajes/' + filename)
         if data:
             # Esperar a que el cliente confirme que está listo para recibir el archivo
@@ -45,20 +47,30 @@ def handle_connection(connection, client_address):
                 time.sleep(1)
 
             # Iniciar el tiempo de transferencia
-            start_time = time()
+            start_time = time.time()
 
+            # Envio de hash del mensaje
+            file_hash = hashlib.sha256(open('mensajes/' + filename, 'rb').read()).hexdigest()
+            connection.sendall(file_hash.encode())
+            
+            print(f"Enviando archivo {filename} a {client_address}")
             with open('mensajes/' + filename, 'rb') as f:
                 offset = 0
                 while offset < filesize:
-                    block = data[offset:offset+1024]
-                    connection.sendall(block)
-                    offset += len(block)
-                    print('Enviado %s bytes a %s' % (len(block), client_address))
-
-            # Envio de hash del mensaje
-            hash = hashlib.sha256(f.read()).hexdigest()
-            print(f"Hash: {hash}")
-            connection.sendall(hash.encode())
+                    # Leer el archivo en bloques de 1024 bytes
+                    data = f.read(1024)
+                    # Enviar el bloque al cliente
+                    connection.sendall(data)
+                    offset += len(data) 
+                    
+            # Enviar confirmación de archivo enviado
+            connection.sendall("FIN".encode())
+            print(f"Archivo enviado a {client_address}")
+            # Calcular el tiempo de transferencia
+            end_time = time.time()
+            transfer_time = end_time - start_time
+            print(f"Tiempo de transferencia: {transfer_time} segundos")
+            print(f"Velocidad de transferencia: {filesize / transfer_time} bytes/segundo")
 
     finally:
         # Clean up the connection
