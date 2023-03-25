@@ -51,7 +51,7 @@ def receive_file(sock, filename):
 # Crear 25 threads para recibir archivos
 threads = []
 filename = input("Ingrese el nombre del archivo a recibir: ")
-for i in range(50):
+for i in range(2):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_address = ('192.168.20.57', 10000)
     print(f"Conectando a {server_address[0]} puerto {server_address[1]}")
