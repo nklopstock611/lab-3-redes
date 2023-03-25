@@ -12,7 +12,7 @@ required_clients = 2
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 10000)
+server_address = ('192.168.10.15', 10000)
 print('starting up on {} port {}'.format(*server_address))
 nrTransferredFile = 0
 sock.bind(server_address)
@@ -25,7 +25,6 @@ clients_ready = 0
 
 def handle_connection(connection, client_address):
     global clients_ready
-
     try:
         print('connection from', client_address)
         # Esperar a recibir confirmacion de inicio de transmision
