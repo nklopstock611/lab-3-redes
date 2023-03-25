@@ -6,7 +6,7 @@ import time
 import hashlib
 
 # Define the number of clients needed before transferring files
-required_clients = 2
+required_clients = 25
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
