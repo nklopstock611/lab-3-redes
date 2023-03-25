@@ -5,9 +5,6 @@ import os
 import datetime
 from time import time
 
-now = datetime.datetime.now()
-actual_date = now.strftime('%Y-%m-%d-%H-%M-%S')
-
 # Crear un socket UDP
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
@@ -17,31 +14,35 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size)
 # Enlazar el socket al puerto
 server_address = ('192.168.1.70', 3400)
 
+# Obtener la fecha y hora actual para el nombre del archivo de registro
+actual_date = datetime.datetime.now().strftime("%Y-%m-%d%H-%M-%S")
+
 print(sys.stderr, 'Iniciando en %s puerto %s' % server_address)
 sock.bind(server_address)
 
 max_datagram_length = 4096
 
-with open('UDP/Logs/' + str(actual_date) + '-log.txt', 'w') as log:
+with open('UDP/Logs/' + actual_date + '-log.txt', 'w') as log:
 
     while True:
         # Esperar a recibir confirmacion de inicio de transmision
         print(sys.stderr, 'Esperando para recibir mensaje')
         data, address = sock.recvfrom(4096)
 
-        # Inicio de cuenta de tiempo
-        start_time = time()
-
         if data:
 
-            message = open('mensajes/' + str(data.decode()) + 'MB.txt', 'rb').read()
-            datagrams = [message[i:i + max_datagram_length] for i in range(0, len(message), max_datagram_length)]
-            
-            # Escribir en el log
-            log.write('Nombre del archivo: ' + str(data.decode()) + 'MB.txt\n')
-            log.write('Tamaño del mensaje: ' + str(len(message)) + ' bytes.\n')
+            # Obtener el nombre y tamaño del archivo
+            filename = str(data.decode()) + 'MB.txt'
+            filesize = os.path.getsize('mensajes/' + filename)
 
-            # Enviar datos pedidos de vuelta al cliente
+            # Iniciar el tiempo de transferencia
+            start_time = time()
+
+            # Leer el archivo y dividirlo en datagramas
+            message = open('mensajes/' + filename, 'rb').read()
+            datagrams = [message[i:i + max_datagram_length] for i in range(0, len(message), max_datagram_length)]
+
+            # Enviar los datagramas al cliente
             for each_datagram in datagrams:
                 sent = sock.sendto(each_datagram, address)
                 print(sys.stderr, 'Enviado %s bytes de vuelta a %s' % (sent, address))
@@ -49,13 +50,10 @@ with open('UDP/Logs/' + str(actual_date) + '-log.txt', 'w') as log:
             # Envía un mensaje de finalización de transmisión
             sent = sock.sendto(b'FIN', address)
             print(sys.stderr, 'Enviando mensaje de FIN de vuelta a ' + str(address))
-            
-        # Fin de cuenta de tiempo
-        end_time = time()
 
-        # Escribir en el log
-        log.write('Tiempo de transmisión: ' + str(end_time - start_time) + ' segundos.\n')
+            # Calcular el tiempo total de transferencia
+            end_time = time()
+            total_time = end_time - start_time
 
-
-
-            
+            # Escribir en el archivo de registro
+            log.write(f'Archivo enviado: {filename}, tamaño: {filesize} bytes, tiempo de transferencia: {total_time:.3f} segundos\n')
