@@ -87,9 +87,10 @@ while len(connections) < required_clients:
     print(f"Connection from {client_address} accepted")
     t = threading.Thread(target=handle_connection, args=(connection, client_address))
     connections.append(t)
-    t.start()
 
 # Esperar a que los threads terminen
+for t in connections:
+    t.start()
 for t in connections:
     t.join()
 
