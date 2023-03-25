@@ -8,7 +8,7 @@ server_address = ('192.168.1.70', 3400)
 def recive_data(sock, i):
 
     # Guardar en la carpeta ArchivosRecibidos
-    file = open("ArchivosRecibidos/Cliente" + str(i) + "-Prueba-" + ".txt", "w")
+    file = open("UDP/ArchivosRecibidos/Cliente" + str(i) + "-Prueba-1" + ".txt", "w")
     
     # Recibir respuesta
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
