@@ -83,12 +83,17 @@ while len(connections) < required_clients:
     # Wait for a connection
     print('waiting for a connection')
     connection, client_address = sock.accept()
-    connections.append(connection)
+    
     print(f"Connection from {client_address} accepted")
-    if len(connections) == required_clients:
-        for conn in connections:
-            t = threading.Thread(target=handle_connection, args=(conn, client_address))
-            t.start()
-        connections.clear()
+    t = threading.Thread(target=handle_connection, args=(connection, client_address))
+    connections.append(t)
+    t.start()
+
+# Esperar a que los threads terminen
+for t in connections:
+    t.join()
+
+# Cerrar la conexión
 sock.close()
+
 
