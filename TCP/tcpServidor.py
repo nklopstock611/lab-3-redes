@@ -6,7 +6,7 @@ import time
 import hashlib
 
 # Define the number of clients needed before transferring files
-required_clients = 1
+required_clients = 2
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,7 +18,7 @@ nrTransferredFile = 0
 sock.bind(server_address)
 
 # Listen for incoming connections
-sock.listen(5)
+sock.listen(25)
 
 # Global variable to keep track of how many clients are ready to receive files
 clients_ready = 0
