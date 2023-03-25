@@ -95,7 +95,7 @@ while len(connections) < required_clients:
         for t in threads:
             t.join()
         connections.clear()
-        clients_ready = 0
+        
         
 sock.close()
 
