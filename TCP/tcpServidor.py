@@ -12,7 +12,7 @@ required_clients = 2
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 10000)
+server_address = ('192.168.20.57', 10000)
 print('starting up on {} port {}'.format(*server_address))
 nrTransferredFile = 0
 sock.bind(server_address)
