@@ -22,12 +22,17 @@ sock.bind(server_address)
 
 max_datagram_length = 4096
 
+nrTransferredFile = 0
+
 with open('UDP/Logs/' + actual_date + '-log.txt', 'w') as log:
 
     while True:
+
         # Esperar a recibir confirmacion de inicio de transmision
         print(sys.stderr, 'Esperando para recibir mensaje')
         data, address = sock.recvfrom(4096)
+
+        nrTransferredFile += 1
 
         if data:
 
@@ -56,4 +61,4 @@ with open('UDP/Logs/' + actual_date + '-log.txt', 'w') as log:
             total_time = end_time - start_time
 
             # Escribir en el archivo de registro
-            log.write(f'Archivo enviado: {filename}, tamaño: {filesize} bytes, tiempo de transferencia: {total_time:.3f} segundos\n')
+            log.write(f'[{nrTransferredFile}], Archivo enviado: {filename}, tamaño: {filesize} bytes, tiempo de transferencia: {total_time:.3f} segundos\n')
