@@ -90,6 +90,7 @@ while len(connections) < required_clients:
         for connection in connections:
             t = threading.Thread(target=handle_connection, args=(connection, client_address))
             threads.append(t)
+        for t in threads:
             t.start()
         for t in threads:
             t.join()
