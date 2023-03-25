@@ -18,8 +18,8 @@ try:
     sock.sendall(filename.encode())
     filename = filename + "MB.txt"
     # Crear el directorio para guardar los archivos recibidos
-    if not os.path.exists('TCP/received_files'):
-        os.makedirs('TCP/received_files')
+    if not os.path.exists('received_files'):
+        os.makedirs('received_files')
     if sock.recv(1024).decode() == "ready":
         sock.sendall("ready".encode())
         
@@ -29,7 +29,7 @@ try:
     print(f"Hash recibido: {hash}")
 
     # Recibir el archivo del servidor
-    with open('TCP/received_files/' + filename, 'wb') as f:
+    with open('received_files/' + filename, 'wb') as f:
         while True:
             data = sock.recv(1024)
             if data == b'FIN':
@@ -40,7 +40,7 @@ try:
 
 
     # Calcular el hash del archivo recibido
-    with open('TCP/received_files/' + filename, 'rb') as f:
+    with open('received_files/' + filename, 'rb') as f:
         file_hash = hashlib.sha256(f.read()).hexdigest()
         print(f"Hash calculado: {file_hash}")
 
