@@ -6,19 +6,19 @@ import time
 import hashlib
 
 # Define the number of clients needed before transferring files
-required_clients = 500
+required_clients = 50
 
 # Create a TCP/IP socket
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 # Bind the socket to the port
-server_address = ('localhost', 10000)
+server_address = ('192.168.20.57', 10000)
 print('starting up on {} port {}'.format(*server_address))
 nrTransferredFile = 0
 sock.bind(server_address)
 
 # Listen for incoming connections
-sock.listen(500)
+sock.listen(50)
 
 # Global variable to keep track of how many clients are ready to receive files
 clients_ready = 0
