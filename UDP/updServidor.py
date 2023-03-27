@@ -4,61 +4,83 @@ import sys
 import os
 import datetime
 from time import time
+import threading
 
-# Crear un socket UDP
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-buffer_size = 8192
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size)
-
-# Enlazar el socket al puerto
 server_address = ('192.168.1.70', 3400)
 
-# Obtener la fecha y hora actual para el nombre del archivo de registro
-actual_date = datetime.datetime.now().strftime("%Y-%m-%d%H-%M-%S")
+import socket
+import sys
+import os
+import datetime
+from time import time
+import threading
 
-print(sys.stderr, 'Iniciando en %s puerto %s' % server_address)
-sock.bind(server_address)
+server_address = ('192.168.1.70', 3400)
 
-max_datagram_length = 4096
+def send_data(sock, address, data):
 
-nrTransferredFile = 0
+    #log = open(log_filename, 'w')
 
-with open('UDP/Logs/' + actual_date + '-log.txt', 'w') as log:
+    # Tamaño máximo de datagrama
+    max_datagram_length = 4096
 
+    # Obtener el nombre y el tamaño del archivo
+    filename = data.decode() + 'MB.txt'
+    filesize = os.path.getsize('mensajes/' + filename)
+
+    # Leer el archivo y dividirlo en datagramas
+    message = open('mensajes/' + filename, 'rb').read()
+    datagrams = [message[i:i + max_datagram_length] for i in range(0, len(message), max_datagram_length)]
+
+    # Enviar los datagramas al cliente
+    for each_datagram in datagrams:
+        sock.sendto(each_datagram, address)
+        #print(sys.stderr, 'Enviado %s bytes de vuelta a %s' % (sent, address))
+
+    # Envía un mensaje de finalización de transmisión
+    sock.sendto(b'FIN', address)
+    print(sys.stderr, 'Enviando mensaje de FIN de vuelta a ' + str(address))
+
+
+if __name__ == '__main__':
+
+    # Crear un socket UDP para el servidor
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+    # Ajustar el tamaño del buffer de recepción
+    buffer_size = 65536
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size)
+
+    # Enlazar el socket al puerto
+    print(sys.stderr, 'Iniciando en %s puerto %s' % server_address)
+    server_socket.bind(server_address)
+
+    # Crear un archivo de log con la fecha actual
+    actual_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+
+    # Crear un archivo de log con la fecha actual
+    log_filename = 'UDP/Logs/' + actual_date + '-log.txt'
+    log = open(log_filename, 'a')
+
+    i = 0
     while True:
 
         # Esperar a recibir confirmacion de inicio de transmision
         print(sys.stderr, 'Esperando para recibir mensaje')
-        data, address = sock.recvfrom(4096)
 
-        nrTransferredFile += 1
+        # Iniciar el tiempo de transferencia
+        start_time = time()
 
-        if data:
+        client_data, client_address = server_socket.recvfrom(4096)
+        
+        # Iniciar los threads para la transferencia de datos
+        thread = threading.Thread(target=send_data, args=(server_socket, client_address, client_data))
+        thread.start()
 
-            # Obtener el nombre y tamaño del archivo
-            filename = str(data.decode()) + 'MB.txt'
-            filesize = os.path.getsize('mensajes/' + filename)
+        # Calcular el tiempo total de transferencia
+        end_time = time()
+        transfer_time = end_time - start_time
 
-            # Iniciar el tiempo de transferencia
-            start_time = time()
+        log.write(f'[{i}], Archivo: {client_data.decode()}MB.txt, Tamaño: {os.path.getsize("mensajes/" + client_data.decode() + "MB.txt")} bytes, Tiempo de transferencia: {transfer_time} segundos\n')
 
-            # Leer el archivo y dividirlo en datagramas
-            message = open('mensajes/' + filename, 'rb').read()
-            datagrams = [message[i:i + max_datagram_length] for i in range(0, len(message), max_datagram_length)]
-
-            # Enviar los datagramas al cliente
-            for each_datagram in datagrams:
-                sent = sock.sendto(each_datagram, address)
-                print(sys.stderr, 'Enviado %s bytes de vuelta a %s' % (sent, address))
-
-            # Envía un mensaje de finalización de transmisión
-            sent = sock.sendto(b'FIN', address)
-            print(sys.stderr, 'Enviando mensaje de FIN de vuelta a ' + str(address))
-
-            # Calcular el tiempo total de transferencia
-            end_time = time()
-            total_time = end_time - start_time
-
-            # Escribir en el archivo de registro
-            log.write(f'[{nrTransferredFile}], Archivo enviado: {filename}, tamaño: {filesize} bytes, tiempo de transferencia: {total_time:.3f} segundos\n')
+        i += 1
