@@ -9,10 +9,10 @@ import queue as q
 
 server_address = ('192.168.1.70', 3400)
 
-def recive_data(sock, i, queue):
+def recive_data(sock, i, queue, numConnections):
 
     # Guardar en la carpeta ArchivosRecibidos
-    file = open("UDP/ArchivosRecibidos/Cliente" + str(i) + "-Prueba-1" + ".txt", "w")
+    file = open("UDP/ArchivosRecibidos/Cliente" + str(i) + "-Prueba-" + numConnections + ".txt", "w")
     
     # Recibir respuesta
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
@@ -64,7 +64,7 @@ if __name__ == "__main__":
 
         queue = q.Queue()
 
-        thread = threading.Thread(target=recive_data, args=(sock, i, queue))
+        thread = threading.Thread(target=recive_data, args=(sock, i, queue, sec_message))
         idThread += 1
         thread.start()
 
