@@ -8,7 +8,7 @@ IP = "192.168.20.57"
 #IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
-SIZE = 1024
+SIZE = 1024*64
 FORMAT = "utf-8"
 DISCONNECT_MSG = "!END"
 
