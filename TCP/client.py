@@ -3,8 +3,8 @@ import threading
 import os 
 import hashlib
 
-#IP = "192.168.20.57"
-IP = socket.gethostbyname(socket.gethostname())
+IP = "192.168.20.57"
+#IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
 SIZE = 1024
