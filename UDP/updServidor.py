@@ -5,19 +5,11 @@ import os
 import datetime
 from time import time
 import threading
+import queue as q
 
 server_address = ('192.168.1.70', 3400)
 
-import socket
-import sys
-import os
-import datetime
-from time import time
-import threading
-
-server_address = ('192.168.1.70', 3400)
-
-def send_data(sock, address, data):
+def send_data(sock, address, data, queue):
 
     #log = open(log_filename, 'w')
 
@@ -32,6 +24,9 @@ def send_data(sock, address, data):
     message = open('mensajes/' + filename, 'rb').read()
     datagrams = [message[i:i + max_datagram_length] for i in range(0, len(message), max_datagram_length)]
 
+    # Iniciar el tiempo de transferencia
+    start_time = time()
+
     # Enviar los datagramas al cliente
     for each_datagram in datagrams:
         sock.sendto(each_datagram, address)
@@ -41,6 +36,11 @@ def send_data(sock, address, data):
     sock.sendto(b'FIN', address)
     print(sys.stderr, 'Enviando mensaje de FIN de vuelta a ' + str(address))
 
+    # Calcular el tiempo total de transferencia
+    end_time = time()
+    transfer_time = end_time - start_time
+
+    queue.put(transfer_time)
 
 if __name__ == '__main__':
 
@@ -60,27 +60,27 @@ if __name__ == '__main__':
 
     # Crear un archivo de log con la fecha actual
     log_filename = 'UDP/Logs/' + actual_date + '-log.txt'
-    log = open(log_filename, 'a')
+    with open(log_filename, 'w') as log:
+        i = 0
+        while True:
 
-    i = 0
-    while True:
+            # Esperar a recibir confirmacion de inicio de transmision
+            print(sys.stderr, 'Esperando para recibir mensaje')
 
-        # Esperar a recibir confirmacion de inicio de transmision
-        print(sys.stderr, 'Esperando para recibir mensaje')
+            # Recibir el mensaje del cliente
+            client_data, client_address = server_socket.recvfrom(4096)
+            
+            queue = q.Queue()
 
-        # Iniciar el tiempo de transferencia
-        start_time = time()
+            # Iniciar los threads para la transferencia de datos
+            thread = threading.Thread(target=send_data, args=(server_socket, client_address, client_data, queue))
+            thread.start()
 
-        client_data, client_address = server_socket.recvfrom(4096)
-        
-        # Iniciar los threads para la transferencia de datos
-        thread = threading.Thread(target=send_data, args=(server_socket, client_address, client_data))
-        thread.start()
+            thread.join()
+            transfer_time = queue.get()
 
-        # Calcular el tiempo total de transferencia
-        end_time = time()
-        transfer_time = end_time - start_time
+            print(sys.stderr, transfer_time)
 
-        log.write(f'[{i}], Archivo: {client_data.decode()}MB.txt, Tamaño: {os.path.getsize("mensajes/" + client_data.decode() + "MB.txt")} bytes, Tiempo de transferencia: {transfer_time} segundos\n')
+            log.write(f'[{i}], Archivo: {client_data.decode()}MB.txt, Tamaño: {os.path.getsize("mensajes/" + client_data.decode() + "MB.txt")} bytes, Tiempo de transferencia: {transfer_time} segundos\n')
 
-        i += 1
+            i += 1
