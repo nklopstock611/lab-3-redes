@@ -3,8 +3,8 @@ import threading
 import os 
 import hashlib
 
-IP = "192.168.20.57"
-# IP = socket.gethostbyname(socket.gethostname())
+#IP = "192.168.20.57"
+IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
 SIZE = 1024
@@ -19,10 +19,10 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients):
     print(f"[CLIENT] ENVIO DE READY")
     print (f"[CLIENT] Esperando archivo {filename}")
     # verify that dir exists
-    if not os.path.exists('ArchivosRecibidos'):
-        os.makedirs('ArchivosRecibidos')
+    if not os.path.exists('TCP/ArchivosRecibidos'):
+        os.makedirs('TCP/ArchivosRecibidos')
 
-    with open(f"ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'wb') as f:
+    with open(f"TCP/ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'wb') as f:
         offset = 0
         while offset < int(filesize):
             # Leer el archivo en bloques de 1024 bytes
@@ -36,7 +36,7 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients):
     
     print(f"[CLIENT] Archivo recibido")
 
-    archivo = open(f"ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'r')
+    archivo = open(f"TCP/ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'r')
     HASH = client_socket.recv(SIZE).decode(FORMAT)
     HASH_CALCULADO = hashlib.md5(archivo.read().encode()).hexdigest()
 

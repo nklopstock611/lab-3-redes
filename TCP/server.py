@@ -4,8 +4,8 @@ import hashlib
 import os
 import time 
 
-IP = "192.168.20.57"
-# IP = socket.gethostbyname(socket.gethostname())
+#IP = "192.168.20.57"
+IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
 SIZE = 1024
@@ -73,14 +73,14 @@ def main():
     print(f"[KING CONNECTION] {addr} connected.")
     cantidad_clientes = int(conexion_inicial.recv(SIZE).decode(FORMAT))
     print(f"[KING CONNECTION] se esperan {cantidad_clientes} clientes")
-    archivo_transmision = "Archivos/"+conexion_inicial.recv(SIZE).decode(FORMAT)+".txt"
+    archivo_transmision = "mensajes/"+conexion_inicial.recv(SIZE).decode(FORMAT)+".txt"
     print(f"[KING CONNECTION] espera el archivo {archivo_transmision}")
     conexion_inicial.sendall(str(os.path.getsize(archivo_transmision)).encode(FORMAT))
     ALLready = []
-    if not os.path.exists('Logs'):
-        os.makedirs('Logs')
+    if not os.path.exists('TCP/Logs'):
+        os.makedirs('TCP/Logs')
 
-    f= open('Logs/'+time.strftime("%Y-%m-%d-%H-%M-%S")+'-log.txt', 'w') 
+    f= open('TCP/Logs/'+time.strftime("%Y-%m-%d-%H-%M-%S")+'-log.txt', 'w') 
     f.write(f"Archivo: {archivo_transmision} Tamaño: {os.path.getsize(archivo_transmision)} bytes\n")
     f.write(f"Clientes: {cantidad_clientes}\n")
     f.write(f"Tiempo de transferencia: \n")
