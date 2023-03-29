@@ -5,10 +5,11 @@ import sys
 import threading
 import datetime
 from time import time
+import queue as q
 
 server_address = ('192.168.1.70', 3400)
 
-def recive_data(sock, i):
+def recive_data(sock, i, queue):
 
     # Guardar en la carpeta ArchivosRecibidos
     file = open("UDP/ArchivosRecibidos/Cliente" + str(i) + "-Prueba-1" + ".txt", "w")
@@ -16,6 +17,7 @@ def recive_data(sock, i):
     # Recibir respuesta
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
 
+    start_time = time()
     data = b'data'
     while data:
         data, server = sock.recvfrom(4096)
@@ -26,7 +28,13 @@ def recive_data(sock, i):
         file.write(data.decode())
 
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Cerrando socket ' + str(i))
+    
+    end_time = time()
+    total_time = end_time - start_time
+
     sock.close()
+
+    queue.put(total_time)
 
 
 if __name__ == "__main__":
@@ -39,6 +47,8 @@ if __name__ == "__main__":
     # Obtener la fecha y hora actual para el nombre del archivo de logs
     actual_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
+    log = open('UDP/Logs/' + actual_date + '-log.txt', 'w')        
+    
     for i in range(0, int(sec_message)):
 
         # Crear un socket UDP
@@ -48,32 +58,24 @@ if __name__ == "__main__":
         buffer_size = 65536
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size)
 
-        # Iniciar el tiempo de transferencia
-        start_time = time()
-
         # Enviar datos
         print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Enviando') #  % message
         sent = sock.sendto(init_message, server_address)
 
-        thread = threading.Thread(target=recive_data, args=(sock, i))
+        queue = q.Queue()
+
+        thread = threading.Thread(target=recive_data, args=(sock, i, queue))
         idThread += 1
         thread.start()
 
-        # Calcular el tiempo total de transferencia
-        end_time = time()
-        total_time = end_time - start_time
-
-    log = open('UDP/Logs/' + actual_date + '-log.txt', 'w')        
-    
-    thread.join()
-    for i in range(0, int(sec_message)):
+        thread.join()
+        total_time = queue.get(block=True)
 
         # Verificación correctitud del archivo recibido
-        filesize = os.path.getsize('UDP/ArchivosRecibidos/Cliente' + str(i) + '-Prueba-1' + '.txt')
+        filesize = os.path.getsize('UDP/ArchivosRecibidos/Cliente' + str(i) + '-Prueba-' + sec_message + '.txt')
         
         success = 'Error en transferencia (el archivo no se recibió completo)'
         if filesize == int(init_message.decode()) * 1048576:
             success = 'Transferencia exitosa'
 
         log.write(f'[Cliente {i}], {success} ({filesize} bytes vs {int(init_message.decode()) * 1048576}), Tiempo: {total_time} segundos\n')
-  
