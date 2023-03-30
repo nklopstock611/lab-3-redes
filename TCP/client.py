@@ -4,7 +4,7 @@ import os
 import hashlib
 import time 
 
-IP = "192.168.20.57"
+IP = "192.168.20.60"
 #IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
@@ -50,14 +50,14 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
         print(f"[CLIENT] HASH correcto")
         correcto_="correcto"
         f_.write(f"[CLIENTE][{id_cliente}] {filename} recibido correctamente en {time_dif} segundos\n")
-        f_.write(f"[CLIENTE][{id_cliente}] {filename} velocidad de transferencia {filesize/time_dif} MB/segundo\n")
+        f_.write(f"[CLIENTE][{id_cliente}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n")
     else:
         print(f"[CLIENT] HASH incorrecto")
         global hash_incorrecto
         hash_incorrecto+=1
         correcto_="incorrecto"
         f_.write(f"[CLIENTE][{id_cliente}] {filename} recibido incorrectamente en {time_dif} segundos\n")
-        f_.write(f"[CLIENTE][{id_cliente}] {filename} velocidad de transferencia {filesize/time_dif} MB/segundo\n")
+        f_.write(f"[CLIENTE][{id_cliente}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n")
     client_socket.sendall(correcto_.encode(FORMAT))
     client_socket.close()
 

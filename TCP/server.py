@@ -4,7 +4,7 @@ import hashlib
 import os
 import time 
 
-IP = "192.168.20.57"
+IP = "192.168.20.60"
 #IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
