@@ -59,6 +59,9 @@ if __name__ == '__main__':
     actual_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     # Crear un archivo de log con la fecha actual
+    if not os.path.exists('UDP/Logs'):
+        os.makedirs('UDP/Logs')    
+        
     log_filename = 'UDP/Logs/' + actual_date + '-log.txt'
     with open(log_filename, 'w') as log:
         i = 0
