@@ -61,7 +61,8 @@ if __name__ == "__main__":
         # Enviar datos
         print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Enviando') #  % message
         sent = sock.sendto(init_message, server_address)
-        puerto_conexion = sock.recvfrom(4096).decode()
+        puerto_conexion,server_address_ = sock.recvfrom(4096)
+        puerto_conexion = puerto_conexion.decode()
         queue = q.Queue()
 
         thread = threading.Thread(target=recive_data, args=(sock, i, queue, sec_message))
@@ -79,4 +80,4 @@ if __name__ == "__main__":
             success = 'Transferencia exitosa'
 
         log.write(f'[Cliente {i}][PuertoCliente {puerto_conexion}][{server_address[0]}:{server_address[1]}] Tiempo de transferencia: {total_time} s - {success} ({filesize} bytes vs {int(init_message.decode()) * 1048576}) velocidad de transferencia: {filesize / total_time} bytes/s \n')
-        
+    log.close()
