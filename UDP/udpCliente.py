@@ -7,7 +7,7 @@ import datetime
 from time import time
 import queue as q
 
-server_address = ('192.168.1.70', 3400)
+server_address = ('192.168.20.60', 3400)
 
 def recive_data(sock, i, queue, numConnections):
 
