@@ -22,8 +22,11 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
     # verify that dir exists
     if not os.path.exists('TCP/ArchivosRecibidos'):
         os.makedirs('TCP/ArchivosRecibidos')
-    time_ini = time.time()
+    TomarTiempo = client_socket.recv(SIZE).decode(FORMAT)
+    if TomarTiempo == "TomarTiempo":
+        print(f"[CLIENT] TomarTiempo recibido")
     
+    time_ini = time.time()
     with open(f"TCP/ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'wb') as f:
         offset = 0
         while offset < int(filesize):
@@ -35,7 +38,7 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
     time_fin = time.time()
     time_dif = time_fin - time_ini
     client_socket.sendall("FIN".encode(FORMAT))
-    
+    puerto = client_socket.getsockname()[1]
             
     
     print(f"[CLIENT] Archivo recibido")
@@ -50,15 +53,15 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
     if HASH == HASH_CALCULADO:
         print(f"[CLIENT] HASH correcto")
         correcto_="correcto"
-        f_.write(f"[CLIENTE][{id_cliente}][{client_socket.getpeername()}] {filename} recibido correctamente en {time_dif} segundos\n")
-        f_.write(f"[CLIENTE][{id_cliente}][{client_socket.getpeername()}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n" )
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} recibido correctamente en {time_dif} segundos\n")
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n" )
     else:
         print(f"[CLIENT] HASH incorrecto")
         global hash_incorrecto
         hash_incorrecto+=1
         correcto_="incorrecto"
-        f_.write(f"[CLIENTE][{id_cliente}][{client_socket.getpeername()}] {filename} recibido incorrectamente en {time_dif} segundos\n")
-        f_.write(f"[CLIENTE][{id_cliente}][{client_socket.getpeername()}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n")
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} recibido incorrectamente en {time_dif} segundos\n")
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n")
     client_socket.sendall(correcto_.encode(FORMAT))
     client_socket.close()
 

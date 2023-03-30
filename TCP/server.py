@@ -21,11 +21,8 @@ def handle_client(conn:socket, addr,filename,cantidad_clientes,id_cliente,f_):
     while len(ALLready) < cantidad_clientes:
         print(f"[READY][{addr}] Esperando a que todos los clientes esten listos")
         pass
-
     
-
-    
-    
+    conn.sendall("TomarTiempo".encode(FORMAT))
     tamaño = os.path.getsize(filename)
     print(f"[ARCHIVO][{addr}] {filename} abierto")
     # enviar el archivo por bloques de 1024 bytes
