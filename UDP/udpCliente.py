@@ -46,7 +46,8 @@ if __name__ == "__main__":
 
     # Obtener la fecha y hora actual para el nombre del archivo de logs
     actual_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
-
+    if not os.path.exists('UDP/Logs'):
+        os.makedirs('UDP/Logs')
     log = open('UDP/Logs/' + actual_date + '-log.txt', 'w')        
     
     for i in range(0, int(sec_message)):
