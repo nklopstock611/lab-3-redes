@@ -55,10 +55,10 @@ def handle_client(conn:socket, addr,filename,cantidad_clientes,id_cliente,f_):
         archivo.close()
         if correcto == "correcto":
             f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} recibido correctamente en {time_dif} segundos\n")
-            f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {(tamaño/2**20)/time_dif} MB/segundo\n")
+            f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {tamaño/time_dif} MB/segundo\n")
         else:
             f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} recibido incorrectamente en {time_dif} segundos\n")
-            f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {(tamaño/2**20)/time_dif} MB/segundo\n")
+            f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {tamaño/time_dif} MB/segundo\n")
     conn.close()
     
     
