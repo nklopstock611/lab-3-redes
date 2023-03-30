@@ -23,7 +23,7 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
     if not os.path.exists('TCP/ArchivosRecibidos'):
         os.makedirs('TCP/ArchivosRecibidos')
     time_ini = time.time()
-    time_dif = time_fin - time_ini
+    
     with open(f"TCP/ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'wb') as f:
         offset = 0
         while offset < int(filesize):
@@ -33,6 +33,7 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
             f.write(data)
             offset += len(data)
     time_fin = time.time()
+    time_dif = time_fin - time_ini
     client_socket.sendall("FIN".encode(FORMAT))
             
     
@@ -49,12 +50,14 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
         print(f"[CLIENT] HASH correcto")
         correcto_="correcto"
         f_.write(f"[CLIENTE][{id_cliente}] {filename} recibido correctamente en {time_dif} segundos\n")
+        f_.write(f"[CLIENTE][{id_cliente}] {filename} velocidad de transferencia {(filesize/2**20)/time_dif} MB/segundo\n")
     else:
         print(f"[CLIENT] HASH incorrecto")
         global hash_incorrecto
         hash_incorrecto+=1
         correcto_="incorrecto"
         f_.write(f"[CLIENTE][{id_cliente}] {filename} recibido incorrectamente en {time_dif} segundos\n")
+        f_.write(f"[CLIENTE][{id_cliente}] {filename} velocidad de transferencia {(filesize/2**20)/time_dif} MB/segundo\n")
     client_socket.sendall(correcto_.encode(FORMAT))
     client_socket.close()
 
@@ -73,6 +76,8 @@ def main():
     print(f"[KING CLIENT] se envio el nombre del archivo {archivo_transmision}")
     filesize = client_socket_.recv(SIZE).decode(FORMAT)
     print(f"[KING CLIENT] se recibio el tamaño del archivo {filesize}")
+    if not os.path.exists('TCP/Logs'):
+        os.makedirs('TCP/Logs')
     f= open('TCP/Logs/'+time.strftime("%Y-%m-%d-%H-%M-%S")+'-log.txt', 'w') 
     f.write(f"Archivo: {archivo_transmision}.txt Tamaño: {filesize} bytes\n")
     f.write(f"Clientes: {num_clients}\n")

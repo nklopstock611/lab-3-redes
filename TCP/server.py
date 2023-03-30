@@ -55,8 +55,10 @@ def handle_client(conn:socket, addr,filename,cantidad_clientes,id_cliente,f_):
         archivo.close()
         if correcto == "correcto":
             f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} recibido correctamente en {time_dif} segundos\n")
+            f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {(tamaño/2**20)/time_dif} MB/segundo\n")
         else:
             f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} recibido incorrectamente en {time_dif} segundos\n")
+            f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {(tamaño/2**20)/time_dif} MB/segundo\n")
     conn.close()
     
     
@@ -77,6 +79,7 @@ def main():
     print(f"[KING CONNECTION] espera el archivo {archivo_transmision}")
     conexion_inicial.sendall(str(os.path.getsize(archivo_transmision)).encode(FORMAT))
     ALLready = []
+    
     if not os.path.exists('TCP/Logs'):
         os.makedirs('TCP/Logs')
 
@@ -84,6 +87,7 @@ def main():
     f.write(f"Archivo: {archivo_transmision} Tamaño: {os.path.getsize(archivo_transmision)} bytes\n")
     f.write(f"Clientes: {cantidad_clientes}\n")
     f.write(f"Tiempo de transferencia: \n")
+    total= time.time()
     for i in range(cantidad_clientes):
         conn, addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn, addr,archivo_transmision,cantidad_clientes,i,f))
@@ -94,6 +98,9 @@ def main():
         print("[SERVER] Server is stopping...")
         server.close()
         print("[SERVER] Server stopped.")
+        total2 = time.time()
+        total3 = total2 - total
+        f.write(f"Tiempo total de transferencia: {total3} segundos\n")
         f.close()
 
 
