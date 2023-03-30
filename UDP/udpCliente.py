@@ -9,13 +9,13 @@ import queue as q
 
 server_address = ('192.168.20.60', 3400)
 
-def recive_data(sock, i, queue, numConnections,f_):
+def recive_data(sock, i, queue, numConnections):
 
     # Guardar en la carpeta ArchivosRecibidos
     if not os.path.exists('UDP/ArchivosRecibidos'):
         os.makedirs('UDP/ArchivosRecibidos')
     file = open("UDP/ArchivosRecibidos/Cliente" + str(i) + "-Prueba-" + numConnections + ".txt", "w")
-    puerto_conexion = sock.recvfrom(4096)
+    
     # Recibir respuesta
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
 
@@ -63,10 +63,10 @@ if __name__ == "__main__":
         # Enviar datos
         print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Enviando') #  % message
         sent = sock.sendto(init_message, server_address)
-
+        
         queue = q.Queue()
 
-        thread = threading.Thread(target=recive_data, args=(sock, i, queue, sec_message,log))
+        thread = threading.Thread(target=recive_data, args=(sock, i, queue, sec_message))
         idThread += 1
         thread.start()
 
@@ -75,10 +75,9 @@ if __name__ == "__main__":
 
         # Verificación correctitud del archivo recibido
         filesize = os.path.getsize('UDP/ArchivosRecibidos/Cliente' + str(i) + '-Prueba-' + sec_message + '.txt')
-        
+        puerto_conexion = sock.recvfrom(4096)
         success = 'Error en transferencia (el archivo no se recibió completo)'
         if filesize == int(init_message.decode()) * 1048576:
             success = 'Transferencia exitosa'
-
-        log.write(f'[Cliente {i}][{server_address[0]}:{server_address[1]}] Tiempo de transferencia: {total_time} s - {success}\n')
+        log.write(f'[Cliente {i}][PuertoCliente {puerto_conexion}][{server_address[0]}:{server_address[1]}] Tiempo de transferencia: {total_time} s - {success}\n')
     log.close()
