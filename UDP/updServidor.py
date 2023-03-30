@@ -26,7 +26,7 @@ def send_data(sock, address, data, queue):
 
     # Iniciar el tiempo de transferencia
     start_time = time()
-    puerto_conexion = address[1]
+    puerto_conexion = str(address[1])
     sock.sendto(puerto_conexion.encode(), address)
 
 
