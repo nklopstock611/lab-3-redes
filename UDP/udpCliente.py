@@ -9,11 +9,13 @@ import queue as q
 
 server_address = ('192.168.20.60', 3400)
 
-def recive_data(sock, i, queue, numConnections):
+def recive_data(sock, i, queue, numConnections,f_):
 
     # Guardar en la carpeta ArchivosRecibidos
+    if not os.path.exists('UDP/ArchivosRecibidos'):
+        os.makedirs('UDP/ArchivosRecibidos')
     file = open("UDP/ArchivosRecibidos/Cliente" + str(i) + "-Prueba-" + numConnections + ".txt", "w")
-    
+    puerto_conexion = sock.recvfrom(4096)
     # Recibir respuesta
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Esperando respuesta')
 
@@ -24,11 +26,10 @@ def recive_data(sock, i, queue, numConnections):
         if data == b'FIN':
             print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Recibido "%s"' % data)
             break
-        
         file.write(data.decode())
 
     print(sys.stderr, 'Cliente ' + str(i) + ' - ' + 'Cerrando socket ' + str(i))
-    
+
     end_time = time()
     total_time = end_time - start_time
 
@@ -65,7 +66,7 @@ if __name__ == "__main__":
 
         queue = q.Queue()
 
-        thread = threading.Thread(target=recive_data, args=(sock, i, queue, sec_message))
+        thread = threading.Thread(target=recive_data, args=(sock, i, queue, sec_message,log))
         idThread += 1
         thread.start()
 
@@ -79,4 +80,5 @@ if __name__ == "__main__":
         if filesize == int(init_message.decode()) * 1048576:
             success = 'Transferencia exitosa'
 
-        log.write(f'[Cliente {i}], {success} ({filesize} bytes vs {int(init_message.decode()) * 1048576}), Tiempo: {total_time} segundos\n')
+        log.write(f'[Cliente {i}][{server_address[0]}:{server_address[1]}] Tiempo de transferencia: {total_time} s - {success}\n')
+    log.close()
