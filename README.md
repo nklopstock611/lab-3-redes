@@ -51,5 +51,5 @@ server_address = (IP, PORT)
 
 - Si se quiere, se puede modificar el tiempo del temporizador en el archivo del cliente de UDP
 ```bash
-sock.settimeout(120)
+sock.settimeout(TIME)
 ```
