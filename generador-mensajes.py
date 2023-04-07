@@ -6,12 +6,12 @@ texto = 'a' * (250 * 1024 * 1)
 file.write(texto)
 file.close()
 
-#1MB para UDP
+# 1MB para UDP
 
-file = open("mensajes/1MB.txt", "w")
-texto = 'a' * (1024 * 1024)
-file.write(texto)
-file.close()
+# file = open("mensajes/1MB.txt", "w")
+# texto = 'a' * (1024 * 1024)
+# file.write(texto)
+# file.close()
 
 # 100MB para UDP
 
@@ -23,7 +23,7 @@ file.close()
 # 250MB para UDP
 
 file = open("mensajes/250MB.txt", "w")
-texto = 'a' * (250 * 1024 * 1024)
+texto = 'a' * (250 * 1024 * 1025)
 file.write(texto)
 file.close()
 

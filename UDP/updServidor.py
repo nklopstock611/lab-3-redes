@@ -7,14 +7,14 @@ from time import time
 import threading
 import queue as q
 
-server_address = ('192.168.1.70', 3400)
+server_address = ('192.168.1.78', 3400)
 
 def send_data(sock, address, data, queue):
 
     #log = open(log_filename, 'w')
 
     # Tamaño máximo de datagrama
-    max_datagram_length = 4096
+    max_datagram_length = 65500
 
     # Obtener el nombre y el tamaño del archivo
     filename = data.decode() + 'MB.txt'
@@ -48,7 +48,7 @@ if __name__ == '__main__':
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     # Ajustar el tamaño del buffer de recepción
-    buffer_size = 65536
+    buffer_size = 66560
     server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, buffer_size)
 
     # Enlazar el socket al puerto
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
             # Recibir el mensaje del cliente
             client_data, client_address = server_socket.recvfrom(4096)
-            
+            print(sys.stderr, client_address)
             queue = q.Queue()
 
             # Iniciar los threads para la transferencia de datos
