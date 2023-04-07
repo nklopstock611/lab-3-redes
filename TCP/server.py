@@ -4,11 +4,11 @@ import hashlib
 import os
 import time 
 
-IP = "192.168.20.57"
-# IP = socket.gethostbyname(socket.gethostname())
+IP = "192.168.1.22"
+#IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
-SIZE = 1024
+SIZE = 1024*64
 FORMAT = "utf-8"
 DISCONNECT_MSG = "!END"
 
@@ -21,11 +21,8 @@ def handle_client(conn:socket, addr,filename,cantidad_clientes,id_cliente,f_):
     while len(ALLready) < cantidad_clientes:
         print(f"[READY][{addr}] Esperando a que todos los clientes esten listos")
         pass
-
     
-
-    
-    
+    conn.sendall("TomarTiempo".encode(FORMAT))
     tamaño = os.path.getsize(filename)
     print(f"[ARCHIVO][{addr}] {filename} abierto")
     # enviar el archivo por bloques de 1024 bytes
@@ -55,8 +52,10 @@ def handle_client(conn:socket, addr,filename,cantidad_clientes,id_cliente,f_):
         archivo.close()
         if correcto == "correcto":
             f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} recibido correctamente en {time_dif} segundos\n")
+            f_.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {tamaño/time_dif} MB/segundo\n")
         else:
             f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} recibido incorrectamente en {time_dif} segundos\n")
+            f.write(f"[CLIENTE][{id_cliente}][{addr}] {filename} velocidad de transferencia {tamaño/time_dif} MB/segundo\n")
     conn.close()
     
     
@@ -73,17 +72,19 @@ def main():
     print(f"[KING CONNECTION] {addr} connected.")
     cantidad_clientes = int(conexion_inicial.recv(SIZE).decode(FORMAT))
     print(f"[KING CONNECTION] se esperan {cantidad_clientes} clientes")
-    archivo_transmision = "Archivos/"+conexion_inicial.recv(SIZE).decode(FORMAT)+".txt"
+    archivo_transmision = "mensajes/"+conexion_inicial.recv(SIZE).decode(FORMAT)+".txt"
     print(f"[KING CONNECTION] espera el archivo {archivo_transmision}")
     conexion_inicial.sendall(str(os.path.getsize(archivo_transmision)).encode(FORMAT))
     ALLready = []
-    if not os.path.exists('Logs'):
-        os.makedirs('Logs')
+    
+    if not os.path.exists('TCP/Logs'):
+        os.makedirs('TCP/Logs')
 
-    f= open('Logs/'+time.strftime("%Y-%m-%d-%H-%M-%S")+'-log.txt', 'w') 
+    f= open('TCP/Logs/'+time.strftime("%Y-%m-%d-%H-%M-%S")+'-log.txt', 'w') 
     f.write(f"Archivo: {archivo_transmision} Tamaño: {os.path.getsize(archivo_transmision)} bytes\n")
     f.write(f"Clientes: {cantidad_clientes}\n")
     f.write(f"Tiempo de transferencia: \n")
+    total= time.time()
     for i in range(cantidad_clientes):
         conn, addr = server.accept()
         thread = threading.Thread(target=handle_client, args=(conn, addr,archivo_transmision,cantidad_clientes,i,f))
@@ -94,6 +95,9 @@ def main():
         print("[SERVER] Server is stopping...")
         server.close()
         print("[SERVER] Server stopped.")
+        total2 = time.time()
+        total3 = total2 - total
+        f.write(f"Tiempo total de transferencia: {total3} segundos\n")
         f.close()
 
 

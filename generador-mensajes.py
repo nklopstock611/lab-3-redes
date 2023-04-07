@@ -1,4 +1,6 @@
-
+import os 
+if not os.path.exists('mensajes'):
+    os.makedirs('mensajes')
 #1KB para UDP
 
 file = open("mensajes/1KB.txt", "w")

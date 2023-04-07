@@ -2,27 +2,32 @@ import socket
 import threading
 import os 
 import hashlib
+import time 
 
-IP = "192.168.20.57"
-# IP = socket.gethostbyname(socket.gethostname())
+IP = "192.168.1.22"
+#IP = socket.gethostbyname(socket.gethostname())
 PORT = 5566
 ADDR = (IP, PORT)
-SIZE = 1024
+SIZE = 1024*64
 FORMAT = "utf-8"
 DISCONNECT_MSG = "!END"
 hash_incorrecto=0
 
-def receive_messages(client_socket,filename,filesize,id_cliente,num_clients):
+def receive_messages(client_socket,filename,filesize,id_cliente,num_clients,f_):
     print(f"[CLIENT] Waiting for messages...")
     listo= input("Ingrese READY cuando este listo para recibir el archivo: ")
     client_socket.sendall("READY".encode(FORMAT))
     print(f"[CLIENT] ENVIO DE READY")
     print (f"[CLIENT] Esperando archivo {filename}")
     # verify that dir exists
-    if not os.path.exists('ArchivosRecibidos'):
-        os.makedirs('ArchivosRecibidos')
-
-    with open(f"ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'wb') as f:
+    if not os.path.exists('TCP/ArchivosRecibidos'):
+        os.makedirs('TCP/ArchivosRecibidos')
+    TomarTiempo = client_socket.recv(SIZE).decode(FORMAT)
+    if TomarTiempo == "TomarTiempo":
+        print(f"[CLIENT] TomarTiempo recibido")
+    
+    time_ini = time.time()
+    with open(f"TCP/ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'wb') as f:
         offset = 0
         while offset < int(filesize):
             # Leer el archivo en bloques de 1024 bytes
@@ -30,13 +35,15 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients):
             # Enviar el bloque al cliente
             f.write(data)
             offset += len(data)
-
+    time_fin = time.time()
+    time_dif = time_fin - time_ini
     client_socket.sendall("FIN".encode(FORMAT))
+    puerto = client_socket.getsockname()[1]
             
     
     print(f"[CLIENT] Archivo recibido")
 
-    archivo = open(f"ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'r')
+    archivo = open(f"TCP/ArchivosRecibidos/Cliente{id_cliente}-Prueba-{num_clients}.txt", 'r')
     HASH = client_socket.recv(SIZE).decode(FORMAT)
     HASH_CALCULADO = hashlib.md5(archivo.read().encode()).hexdigest()
 
@@ -46,13 +53,16 @@ def receive_messages(client_socket,filename,filesize,id_cliente,num_clients):
     if HASH == HASH_CALCULADO:
         print(f"[CLIENT] HASH correcto")
         correcto_="correcto"
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} recibido correctamente en {time_dif} segundos\n")
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n" )
     else:
         print(f"[CLIENT] HASH incorrecto")
         global hash_incorrecto
         hash_incorrecto+=1
         correcto_="incorrecto"
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} recibido incorrectamente en {time_dif} segundos\n")
+        f_.write(f"[CLIENTE][{id_cliente}][{puerto}] {filename} velocidad de transferencia {int(filesize)/time_dif} B/segundo\n")
     client_socket.sendall(correcto_.encode(FORMAT))
-
     client_socket.close()
 
 def main():
@@ -70,6 +80,12 @@ def main():
     print(f"[KING CLIENT] se envio el nombre del archivo {archivo_transmision}")
     filesize = client_socket_.recv(SIZE).decode(FORMAT)
     print(f"[KING CLIENT] se recibio el tamaño del archivo {filesize}")
+    if not os.path.exists('TCP/Logs'):
+        os.makedirs('TCP/Logs')
+    f= open('TCP/Logs/'+time.strftime("%Y-%m-%d-%H-%M-%S")+'-log.txt', 'w') 
+    f.write(f"Archivo: {archivo_transmision}.txt Tamaño: {filesize} bytes\n")
+    f.write(f"Clientes: {num_clients}\n")
+    f.write(f"Tiempo de transferencia: \n")
 
     for i in range(num_clients):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -81,7 +97,7 @@ def main():
     threads = []
     for i in range(num_clients):
         id_cliente = i
-        thread = threading.Thread(target=receive_messages, args=(client_sockets[i],archivo_transmision.decode(FORMAT),filesize,id_cliente,num_clients))
+        thread = threading.Thread(target=receive_messages, args=(client_sockets[i],archivo_transmision.decode(FORMAT),filesize,id_cliente,num_clients,f))
         threads.append(thread)
         thread.start()
     for thread in threads:
@@ -89,6 +105,7 @@ def main():
 
     client_socket_.sendall(DISCONNECT_MSG.encode(FORMAT))
     client_socket_.close()
+    f.close()
 if __name__ == "__main__":
     main()
     print(f"[CLIENT] HASH incorrectos: {hash_incorrecto}")

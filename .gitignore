@@ -3,3 +3,5 @@
 /UDP/ArchivosRecibidos/*.txt
 /TCP/received_files/*.txt
 /TCP/logs/*.txt
+/TCP/ArchivosRecibidos/*.txt
+/TCP.pcap

@@ -7,7 +7,11 @@ from time import time
 import threading
 import queue as q
 
+<<<<<<< HEAD
 server_address = ('192.168.1.78', 3400)
+=======
+server_address = ('192.168.20.60', 3400)
+>>>>>>> 37c89e2fc080172ca1dfa199ca1972f6f973f382
 
 def send_data(sock, address, data, queue):
 
@@ -26,6 +30,9 @@ def send_data(sock, address, data, queue):
 
     # Iniciar el tiempo de transferencia
     start_time = time()
+    puerto_conexion = str(address[1])
+    sock.sendto(puerto_conexion.encode(), address)
+
 
     # Enviar los datagramas al cliente
     for each_datagram in datagrams:
@@ -34,6 +41,7 @@ def send_data(sock, address, data, queue):
 
     # Envía un mensaje de finalización de transmisión
     sock.sendto(b'FIN', address)
+
     print(sys.stderr, 'Enviando mensaje de FIN de vuelta a ' + str(address))
 
     # Calcular el tiempo total de transferencia
@@ -59,6 +67,9 @@ if __name__ == '__main__':
     actual_date = datetime.datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
 
     # Crear un archivo de log con la fecha actual
+    if not os.path.exists('UDP/Logs'):
+        os.makedirs('UDP/Logs')    
+
     log_filename = 'UDP/Logs/' + actual_date + '-log.txt'
     with open(log_filename, 'w') as log:
         i = 0
@@ -82,5 +93,6 @@ if __name__ == '__main__':
             print(sys.stderr, transfer_time)
 
             log.write(f'[{i}], Archivo: {client_data.decode()}MB.txt, Tamaño: {os.path.getsize("mensajes/" + client_data.decode() + "MB.txt")} bytes, Tiempo de transferencia: {transfer_time} segundos\n')
+
 
             i += 1
