@@ -44,8 +44,12 @@ https://youtu.be/S-TI389QuXk
 
 ## <a name="ejecucion"></a> Ejecución
 
-- Cambiar IP en archivos de cliente y servidor de ambos protocolos
-´´´bash
-$ 
-´´´
+- Cambiar IP y el puerto en archivos de cliente y servidor de ambos protocolos
+```bash
+server_address = (IP, PORT)
+```
 
+- Si se quiere, se puede modificar el tiempo del temporizador en el archivo del cliente de UDP
+```bash
+sock.settimeout(120)
+```
