@@ -2,11 +2,14 @@
 
 [Contexto](#contexto)
 
-[TCP](#tcp)
+[Protocolo TCP](#tcp)
 
-[UDP](#udp)
+[Protocolo UDP](#udp)
+
+[Ejecución](#ejecucion)
 
 ## <a name="contexto"></a> Contexto
+
 - Durante el laboratorio se puede utilizar las máquinas propias de los integrantes del grupo o hacer
 uso de la infraestructura del laboratorio. En caso de elegir utilizar la infraestructura del laboratorio
 esta decisión debe ser informada lo antes posible al profesor de laboratorio para que se habilite el
@@ -32,4 +35,7 @@ Finalmente, se espera que se implementen pruebas de carga y desempeño sobre la 
 Tal como se enuncio en el anterior apartado, en este laboratorio se debe realizar un desarrollo de un servicio de transferencia de archivo utilizando el protocolo de datagramas de usuario (UDP por sus siglas
 en inglés) emulando una arquitectura cliente – servidor. Finalmente, se espera que se implementen pruebas de carga y desempeño sobre la arquitectura desarrollada, con el fin de evaluar el funcionamiento del servicio mediante métricas de desempeño, como: total de bytes transmitidos por el servidor, tiempo de transferencia promedio medido en servidor, tasa de transferencia promedio medido en servidor, total de bytes recibidos por el cliente, tiempo de transferencia promedio medido en cliente, tasa de transferencia promedio medido en cliente. Esto permitirá realizar un análisis de rendimiento de las transferencias con el protocolo UDP y posteriormente, hacer una comparación con los resultados obtenidos del servicio funcionando con el protocolo TCP. Por último, usted deberá subir sus aplicativos de cliente y servidor en Github. Asegúrese de incluir un
 archivo readme en donde se pueda encontrar instrucciones sobre la instalación y ejecución de cada uno de los programas.
+
+## <a name="ejecucion"></a> Ejecución
+
 
