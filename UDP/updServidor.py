@@ -7,11 +7,7 @@ from time import time
 import threading
 import queue as q
 
-<<<<<<< HEAD
 server_address = ('192.168.1.78', 3400)
-=======
-server_address = ('192.168.20.60', 3400)
->>>>>>> 37c89e2fc080172ca1dfa199ca1972f6f973f382
 
 def send_data(sock, address, data, queue):
 
