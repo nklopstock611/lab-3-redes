@@ -90,5 +90,4 @@ if __name__ == '__main__':
 
             log.write(f'[{i}], Archivo: {client_data.decode()}MB.txt, Tamaño: {os.path.getsize("mensajes/" + client_data.decode() + "MB.txt")} bytes, Tiempo de transferencia: {transfer_time} segundos\n')
 
-
             i += 1
