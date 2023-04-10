@@ -40,7 +40,7 @@ en inglés) emulando una arquitectura cliente – servidor. Finalmente, se esper
 archivo readme en donde se pueda encontrar instrucciones sobre la instalación y ejecución de cada uno de los programas.
 
 ### <a name="udp"></a> Video
-https://youtu.be/S-TI389QuXk
+https://www.youtube.com/watch?v=S-TI389QuXk
 
 ## <a name="ejecucion"></a> Ejecución
 
